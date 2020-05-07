@@ -68,7 +68,6 @@ popen_read(const char *cmd, int timeout)
         perror("select()");
         close(s[0]);
         kill(pid, SIGTERM);
-        errno = ETIME;
         return NULL;
     }
 
@@ -77,6 +76,7 @@ popen_read(const char *cmd, int timeout)
             fprintf(stderr, "%s: select() timed out kill %d\n", __func__, pid);
         kill(pid, SIGTERM);
         close(s[0]);
+        errno = ETIME;
         return NULL;
     }
 

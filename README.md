@@ -12,5 +12,27 @@ The advantage  are:
 
 Currently only the reading mode is supported.
 
+Examples.
+
+  * Run a simple command like ls
+```
+  $ ./runme ls
+librun.c
+librun.h
+librun.o
+Makefile
+README.md
+runme
+runme.c
+runme.o
+```
+
+  * Time out if run more than 10 secods, that's the default timeout
+
+```
+$ ./runme sleep 15
+popen_read(): Timer expired
+```
+
 Thanks,
 Spago
