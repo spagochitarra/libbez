@@ -1,6 +1,6 @@
 
-CC = gcc
-CFLAGS = -g -O0 -I.
+CC = g++
+CPPFLAGS = -g -O0 -I.
 
 EXE = runme
 
@@ -9,7 +9,7 @@ all: $(EXE)
 runme: runme.o librun.o
 	$(CC) -o $@ $^ 
 
-librun.o: librun.c 
+librun.o: librun.cpp
 	$(CC) -c $^
 
 clean:
