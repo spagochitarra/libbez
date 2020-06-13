@@ -1,16 +1,12 @@
 # libbez
-Little popen()
+linc system() with timeout
 
-A little process execution library to use instead of system() and popen() calls.
-The advantages  are:
+A little process execution library to use instead of system()
 
+The advantages is :
 
   * If the invoked command is not responding it can be terminated based on
     the timeout specified as parameter
-
-  * The output from the command can be read using stdio
-
-Currently only the reading mode is supported.
 
 Examples.
 
@@ -27,11 +23,13 @@ runme.c
 runme.o
 ```
 
-  * Time out if run more than 10 secods, that's the default timeout
+  * Time out if run more than 10 seconds, that's the default timeout
 
 ```
 $ ./runme sleep 15
-popen_read(): Timer expired
+$ system_timeout: Timer expired
+echo $?
+255
 ```
 
 Thanks,
