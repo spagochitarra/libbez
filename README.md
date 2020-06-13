@@ -1,5 +1,5 @@
 # libbez
-linc system() with timeout
+libc system() with timeout
 
 A little process execution library to use instead of system()
 
