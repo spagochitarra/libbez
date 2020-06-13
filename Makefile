@@ -1,4 +1,4 @@
-
+# Use C++ the C way
 CC = g++
 CPPFLAGS = -g -O0 -I.
 

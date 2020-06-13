@@ -12,7 +12,9 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 
-extern FILE *popen_read(const char *, int);
-extern int popen_close(FILE *);
+#define _SYSTEM_TIMEOUT 10
+
+extern int system_timeout(const char *, int);
+extern int system2(const char *);
 
 #endif

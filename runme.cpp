@@ -9,6 +9,7 @@ main(int argc, char **argv)
 {
     FILE *fp;
     int i;
+    int cc;
 
     if (argc == 1) {
         fprintf(stderr, "runme wants a command\n");
@@ -18,16 +19,17 @@ main(int argc, char **argv)
     for (i = 1; i < argc; i++)
         sprintf(cmd + strlen(cmd), "%s ", argv[i]);
 
-    fp = popen_read(cmd, 10);
-    if (! fp) {
-        perror("popen_read()");
+    if ((cc = system_timeout(cmd, 10)) < 0) {
+        perror("system_timeout");
         return -1;
     }
 
-    while ((fgets(s, sizeof(s), fp)))
-        printf("%s", s);
+    printf("Now run system2()\n");
 
-    popen_close(fp);
+    if ((cc = system2(cmd)) < 0) {
+        perror("system2()");
+        return cc;
+    }
 
-    return 0;
+    return cc;
 }

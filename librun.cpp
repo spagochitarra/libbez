@@ -1,22 +1,26 @@
 
-/* No thread safe
+/* system() with timeout
  */
 
 #include "librun.h"
 
-static FILE *fp;
-static pid_t pid;
 static char debug;
 
-/* This is equivalent to popen() with r parameter but we
- * also have socketpair() control in case the child hangs
- */
-FILE *
-popen_read(const char *cmd, int timeout)
+int
+system_timeout(const char *cmd, int timeout)
 {
+    FILE *fp;
     int s[2];
     int cc;
     char *p;
+    pid_t pid;
+    char buf[BUFSIZ/8];
+
+    if (cmd == NULL
+        || timeout < 0) {
+        errno = EINVAL;
+        return -1;
+    }
 
     debug = 0;
     if ((p = getenv("RUN_DEBUG")))
@@ -24,7 +28,7 @@ popen_read(const char *cmd, int timeout)
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, s) < 0) {
         perror("socketpair()");
-        return NULL;
+        return -1;
     }
 
     pid = fork();
@@ -32,7 +36,7 @@ popen_read(const char *cmd, int timeout)
         perror("fork()");
         close(s[0]);
         close(s[1]);
-        return NULL;
+        return -1;
     }
 
     if (pid == 0) {
@@ -68,7 +72,7 @@ popen_read(const char *cmd, int timeout)
         perror("select()");
         close(s[0]);
         kill(pid, SIGTERM);
-        return NULL;
+        return -1;
     }
 
     if (cc == 0) {
@@ -77,30 +81,44 @@ popen_read(const char *cmd, int timeout)
         kill(pid, SIGTERM);
         close(s[0]);
         errno = ETIME;
-        return NULL;
+        return -1;
     }
 
     fp = fdopen(s[0], "r");
 
-    return fp;
-}
-
-int
-popen_close(FILE *ipf)
-{
-    if (ipf != fp) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (debug)
-        fprintf(stderr, "%s: bye pid %d\n", __func__, pid);
+    while ((fgets(buf, sizeof(s), fp)))
+        printf("%s", buf);
 
     fclose(fp);
+
     int wstatus;
     if (waitpid(pid, &wstatus, 0) < 0) {
+        perror("wait");
         return -1;
     }
 
     return wstatus;
+}
+
+/* wrap the above
+ */
+int
+system2(const char *cmd)
+{
+    char *p;
+    int t;
+
+    if (cmd == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    t = _SYSTEM_TIMEOUT;
+    if ((p = getenv("_SYSTEM_TIMEOUT"))) {
+        t = atoi(p);
+        if (t <= 0)
+            t = _SYSTEM_TIMEOUT;
+    }
+
+    return system_timeout(cmd, t);
 }
